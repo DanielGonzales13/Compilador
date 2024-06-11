@@ -1,0 +1,132 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+import codigo.Generador;
+
+parser code
+{:
+    public String resultado="";
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal 
+    PRINCIPIO,
+    si,
+    contrario_si,
+    contrario,
+    funcion,
+    retornar,
+    Reservada,
+    imprimir,
+    boleana,
+    incremento,
+    decremento,
+    operadores_logicos,
+    operadores_comparacion,
+    nulo,
+    entero,
+    cadena,
+    flotante,
+    decimal,
+    boleano,
+    caracter,
+    lista,
+    mapa,
+    fecha,
+    hora,
+    fechahora,
+    t_byte,
+    Identificador,
+    cadena_literal,
+    cadena_simple,
+    op_suma,
+    op_resta,
+    op_division,
+    op_asignacion,
+    op_multiplicacion,
+    coma,
+    punto_y_coma,
+    comentario,
+    par_abierto,
+    par_cerrado,
+    llave_abierta,
+    llave_cerrada,
+    corchete_abierto,
+    corchete_cerrado,
+    comillas,
+    Numero_decimal,
+    Numero,
+    ERROR
+;
+
+non terminal INICIAL, SENTENCIA, SENTENCIAS, TERM, FACTOR, CONDICION, BLOQUE, BLOQUEFUNCION, EXP_LOGICA, EXP_LOGICA2, FUNCION, PARAMETROS, IMPRIMIR, EXPRESION, CONCATENACION, CONCATENACION_AUX, CONDICION_CONTRARIASI,TIPO;
+non terminal String NUMERO;
+non terminal String ARITMETIC;
+non terminal String PRINCIPIOSTART;
+
+precedence left op_suma, op_resta;
+precedence left op_multiplicacion, op_division;
+
+start with INICIAL;
+
+INICIAL ::=
+    PRINCIPIO par_abierto par_cerrado llave_abierta SENTENCIAS llave_cerrada 
+;
+
+PRINCIPIOSTART::= 
+    PRINCIPIO par_abierto par_cerrado
+;
+
+SENTENCIAS ::=
+    SENTENCIA
+    | SENTENCIAS SENTENCIA
+;
+
+SENTENCIA ::=
+    decimal Identificador:a op_asignacion ARITMETIC:b punto_y_coma {: 
+        Generador.generarCodigoIntermedioAritmetico(b, "", "", a.toString());
+        RESULT = a;
+    :}
+    | cadena Identificador:a op_asignacion cadena_literal:b punto_y_coma {: 
+        Generador.generarCodigoIntermedioCadena(b.toString(), a.toString());
+        RESULT = a;
+    :}
+;
+
+ARITMETIC ::=
+    NUMERO:n {: RESULT = n; :}
+    |ARITMETIC:n1 op_suma ARITMETIC:a2 {: 
+        String temp = Generador.nuevaTemp();
+        Generador.generarCodigoIntermedioAritmetico(n1, a2, "+", temp);
+        RESULT = temp;
+    :}
+    | ARITMETIC:n1 op_resta ARITMETIC:a2 {: 
+        String temp = Generador.nuevaTemp();
+        Generador.generarCodigoIntermedioAritmetico(n1, a2, "-", temp);
+        RESULT = temp;
+    :}
+    | ARITMETIC:n1 op_multiplicacion ARITMETIC:a2 {: 
+        String temp = Generador.nuevaTemp();
+        Generador.generarCodigoIntermedioAritmetico(n1, a2, "*", temp);
+        RESULT = temp;
+    :}
+    | ARITMETIC:n1 op_division ARITMETIC:a2 {: 
+        String temp = Generador.nuevaTemp();
+        Generador.generarCodigoIntermedioAritmetico(n1, a2, "/", temp);
+        RESULT = temp;        
+    :}
+    
+;
+
+NUMERO ::= 
+    Numero:n {: RESULT = n.toString(); :}
+    | Numero_decimal Numero:n {: RESULT = n.toString(); :}
+;

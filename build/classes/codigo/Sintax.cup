@@ -1,0 +1,189 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    public String resultado="";
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal 
+    PRINCIPIO,
+    si,
+    contrario_si,
+    contrario,
+    funcion,
+    retornar,
+    Reservada,
+    imprimir,
+    boleana,
+    incremento,
+    decremento,
+    operadores_logicos,
+    operadores_comparacion,
+    nulo,
+    entero,
+    cadena,
+    flotante,
+    decimal,
+    boleano,
+    caracter,
+    lista,
+    mapa,
+    fecha,
+    hora,
+    fechahora,
+    t_byte,
+    Identificador,
+    cadena_literal,
+    cadena_simple,
+    op_suma,
+    op_resta,
+    op_division,
+    op_asignacion,
+    op_multiplicacion,
+    coma,
+    punto_y_coma,
+    comentario,
+    par_abierto,
+    par_cerrado,
+    llave_abierta,
+    llave_cerrada,
+    corchete_abierto,
+    corchete_cerrado,
+    comillas,
+    Numero_decimal,
+    Numero,
+    ERROR
+;
+
+non terminal INICIAL, SENTENCIA, SENTENCIAS, NUMERO, ARITMETIC, TERM, FACTOR, CONDICION, BLOQUE, BLOQUEFUNCION, EXP_LOGICA, EXP_LOGICA2, FUNCION, PARAMETROS, IMPRIMIR, EXPRESION, CONCATENACION, CONCATENACION_AUX, CONDICION_CONTRARIASI,TIPO;
+
+start with INICIAL;
+
+INICIAL ::=
+ PRINCIPIO par_abierto par_cerrado llave_abierta SENTENCIAS llave_cerrada 
+;
+
+SENTENCIAS ::=
+    SENTENCIA
+    | SENTENCIAS SENTENCIA
+;
+
+SENTENCIA ::=
+entero Identificador op_asignacion Numero punto_y_coma
+| cadena Identificador op_asignacion cadena_literal punto_y_coma
+| decimal Identificador op_asignacion ARITMETIC punto_y_coma
+| IMPRIMIR
+| CONDICION
+| FUNCION
+| Identificador incremento punto_y_coma
+| Identificador decremento punto_y_coma
+;
+
+IMPRIMIR ::=
+    imprimir par_abierto EXPRESION par_cerrado punto_y_coma
+;
+
+EXPRESION ::=
+    cadena_literal
+    | CONCATENACION
+;
+
+CONCATENACION ::=
+    cadena_literal CONCATENACION_AUX
+    | Identificador CONCATENACION_AUX
+;
+
+CONCATENACION_AUX ::=
+    op_suma cadena_literal CONCATENACION_AUX
+    | op_suma Identificador CONCATENACION_AUX
+    | op_suma NUMERO CONCATENACION_AUX
+    | op_suma Identificador
+    | op_suma cadena_literal
+    | op_suma NUMERO
+;
+
+NUMERO ::= 
+    Numero
+    | Numero_decimal
+;
+
+ARITMETIC ::=
+    ARITMETIC op_suma TERM
+    | ARITMETIC op_resta TERM
+    | TERM
+    ;
+
+TERM ::=
+    TERM op_multiplicacion FACTOR
+    | TERM op_division FACTOR
+    | FACTOR
+    ;
+
+
+CONDICION ::=
+    si par_abierto EXP_LOGICA par_cerrado BLOQUE
+    | si par_abierto EXP_LOGICA par_cerrado BLOQUE CONDICION_CONTRARIASI
+    | si par_abierto EXP_LOGICA par_cerrado BLOQUE CONDICION_CONTRARIASI contrario BLOQUE
+    | si par_abierto EXP_LOGICA par_cerrado BLOQUE contrario BLOQUE
+;
+
+CONDICION_CONTRARIASI ::=
+    contrario_si par_abierto EXP_LOGICA par_cerrado BLOQUE
+    | contrario_si par_abierto EXP_LOGICA par_cerrado BLOQUE CONDICION_CONTRARIASI
+;
+
+EXP_LOGICA ::=
+    EXP_LOGICA2
+    | EXP_LOGICA2 operadores_logicos EXP_LOGICA2
+;
+
+EXP_LOGICA2 ::=
+    FACTOR operadores_comparacion FACTOR
+    | boleana
+;
+
+FACTOR ::=
+    par_abierto ARITMETIC par_cerrado
+    | NUMERO
+    | Identificador
+;
+
+BLOQUE ::=
+    llave_abierta SENTENCIAS llave_cerrada
+;
+
+FUNCION ::=
+    funcion Identificador par_abierto PARAMETROS par_cerrado BLOQUEFUNCION
+    |funcion Identificador par_abierto par_cerrado BLOQUEFUNCION
+
+;
+
+BLOQUEFUNCION ::=
+    llave_abierta SENTENCIAS retornar Identificador punto_y_coma llave_cerrada
+;
+
+PARAMETROS ::=
+    TIPO Identificador
+    | TIPO Identificador coma PARAMETROS
+;
+
+TIPO ::=
+    entero
+    |decimal
+    |flotante
+    |boleano
+    |cadena
+    |caracter
+;
+
